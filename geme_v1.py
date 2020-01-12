@@ -51,13 +51,8 @@ class Map():
         number = random.randint(0, len(self.kol_room) - 1)
         kol = self.kol_room[number]
         self.kol_room = self.kol_room[:number] + self.kol_room[number + 1:]
-        # [isp(True, False), (x, y); vxod, vyxody]
-        # 3
-        #4k2
-        # 1
         rooms = [[False, (), 0, []] for x in range(kol)] +\
                 [[False, (), 0, 0], [False, (), 0, 0]]
-        # [rod, pred, vyxod]
         predki = []
         i = 0
         maket = [[0 for j in range((kol + 2) * 2 + 1)] for i in range((kol + 2) * 2 + 1)]
@@ -107,10 +102,6 @@ class Map():
                 maket[y + delta_x_y[rooms[i][-1][j]][1]][x + delta_x_y[rooms[i][-1][j]][0]] = 1
                 predki += [[i, nomer, rooms[i][-1][j]]]
             i += 1
-        for i in maket:
-            print(i)
-        print(rooms)
-        print(predki)
         long = kol * 17 + (kol + 5) * 7
         self.karta = ["~" * long * 2 for i in range(long * 2)]
         x, y = long - 3, long - 3
@@ -143,8 +134,6 @@ class Map():
                 if self.karta[y][x] == "#":
                     if self.karta[y][x + 1] == "." and self.karta[y][x - 1] == "." or self.karta[y + 1][x] == "." and self.karta[y - 1][x] == ".":
                         self.karta[y] = self.karta[y][:x] + "^" + self.karta[y][x + 1:]
-        for i in self.karta:
-            print(i)
         return self.karta
 
     def make_map(self, room, nomer, predki, rooms, x, y):
@@ -186,51 +175,36 @@ class Map():
                     else:
                         x += 6
                         y -= 6
-                self.karta[y] = self.karta[y][:x] + "#################" + self.karta[y][x + 17:]
-                for i in range(1, 16):
-                    self.karta[y + i] = self.karta[y + i][:x] + "#...............#" + self.karta[y + i][x + 17:]
-                self.karta[y + 16] = self.karta[y + 16][:x] + "#################" + self.karta[y + 16][x + 17:]
-                for i in range(len(room[-1])):
-                    for j in predki:
-                        if nomer == j[0]:
-                            for k in range(len(rooms)):
-                                if k == j[1]:
-                                    self.make_map(rooms[k], k, predki, rooms, x, y)
-                            del predki[predki.index(j)]
             else:
+                x += napravlenie[room[-2]][0]
+                y += napravlenie[room[-2]][1]
                 if room[-2] == 1 or room[-2] == 3:
-                    x += napravlenie[room[-2]][0]
-                    y += napravlenie[room[-2]][1]
                     self.karta[y] = self.karta[y][:x] + "#####" + self.karta[y][x + 5:]
                     for i in range(1, 6):
                         self.karta[y + i] = self.karta[y + i][:x] + "#...#" + self.karta[y + i][x + 5:]
                     self.karta[y + 6] = self.karta[y + 6][:x] + "#####" + self.karta[y + 6][x + 5:]
-                    x += napravlenie2[room[-2]][0]
-                    y += napravlenie2[room[-2]][1]
                 else:
-                    x += napravlenie[room[-2]][0]
-                    y += napravlenie[room[-2]][1]
                     self.karta[y] = self.karta[y][:x] + "#######" + self.karta[y][x + 7:]
                     for i in range(1, 4):
                         self.karta[y + i] = self.karta[y + i][:x] + "#.....#" + self.karta[y + i][x + 7:]
                     self.karta[y + 4] = self.karta[y + 4][:x] + "#######" + self.karta[y + 4][x + 7:]
-                    x += napravlenie2[room[-2]][0]
-                    y += napravlenie2[room[-2]][1]
-                self.karta[y] = self.karta[y][:x] + "#################" + self.karta[y][x + 17:]
-                for i in range(1, 16):
-                    self.karta[y + i] = self.karta[y + i][:x] + "#...............#" + self.karta[y + i][x + 17:]
-                self.karta[y + 16] = self.karta[y + 16][:x] + "#################" + self.karta[y + 16][x + 17:]
-                for i in range(len(room[-1])):
-                    for j in predki:
-                        if nomer == j[0]:
-                            for k in range(len(rooms)):
-                                if k == j[1]:
-                                    self.make_map(rooms[k], k, predki, rooms, x, y)
-                            del predki[predki.index(j)]
+                x += napravlenie2[room[-2]][0]
+                y += napravlenie2[room[-2]][1]
+            self.karta[y] = self.karta[y][:x] + "#################" + self.karta[y][x + 17:]
+            for i in range(1, 16):
+                self.karta[y + i] = self.karta[y + i][:x] + "#...............#" + self.karta[y + i][x + 17:]
+            self.karta[y + 16] = self.karta[y + 16][:x] + "#################" + self.karta[y + 16][x + 17:]
+            for i in range(len(room[-1])):
+                for j in predki:
+                    if nomer == j[0]:
+                        for k in range(len(rooms)):
+                            if k == j[1]:
+                                self.make_map(rooms[k], k, predki, rooms, x, y)
+                        del predki[predki.index(j)]
         else:
+            x += napravlenie[room[-2]][0]
+            y += napravlenie[room[-2]][1]
             if room[-2] == 1 or room[-2] == 3:
-                x += napravlenie[room[-2]][0]
-                y += napravlenie[room[-2]][1]
                 self.karta[y] = self.karta[y][:x] + "#####" + self.karta[y][x + 5:]
                 for i in range(1, 6):
                     self.karta[y + i] = self.karta[y + i][:x] + "#...#" + self.karta[y + i][x + 5:]
@@ -242,8 +216,6 @@ class Map():
                     x -= 1
                     y -= 6
             else:
-                x += napravlenie[room[-2]][0]
-                y += napravlenie[room[-2]][1]
                 self.karta[y] = self.karta[y][:x] + "#######" + self.karta[y][x + 7:]
                 for i in range(1, 4):
                     self.karta[y + i] = self.karta[y + i][:x] + "#.....#" + self.karta[y + i][x + 7:]
@@ -262,10 +234,6 @@ class Map():
                 self.karta[y + 3] = self.karta[y + 3][:x + 3] + "!" + self.karta[y + 3][x + 4:]
             else:
                 self.karta[y + 3] = self.karta[y + 3][:x + 3] + "$" + self.karta[y + 3][x + 4:]
-
-
-def create_level():
-    pass
 
 
 def terminate():
@@ -310,6 +278,8 @@ class Tile(pygame.sprite.Sprite):
             super().__init__(tile_group, all_sprites)
         elif tile_type == "door":
             super().__init__(door_group, all_sprites)
+        elif tile_type == "box":
+            super().__init__(box_group, all_sprites)
         else:
             super().__init__(all_sprites)
         self.image = tile_images[tile_type]
@@ -417,9 +387,12 @@ while running:
                 elif pygame.sprite.spritecollideany(player, box_group):
                     pass
     if del_x != 0 or del_y != 0:
-        player.go(del_x, del_y)
+        player.go(del_x, 0)
         if pygame.sprite.spritecollideany(player, tile_group):
-            player.go(-del_x, -del_y)
+            player.go(-del_x, 0)
+        player.go(0, del_y)
+        if pygame.sprite.spritecollideany(player, tile_group):
+            player.go(0, -del_y)
         camera.update(player)
         for sprite in all_sprites:
             camera.apply(sprite)
