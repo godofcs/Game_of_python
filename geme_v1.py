@@ -134,6 +134,8 @@ class Map():
                 if self.karta[y][x] == "#":
                     if self.karta[y][x + 1] == "." and self.karta[y][x - 1] == "." or self.karta[y + 1][x] == "." and self.karta[y - 1][x] == ".":
                         self.karta[y] = self.karta[y][:x] + "^" + self.karta[y][x + 1:]
+        for i in self.karta:
+            print(i)
         return self.karta
 
     def make_map(self, room, nomer, predki, rooms, x, y):
@@ -191,8 +193,15 @@ class Map():
                 x += napravlenie2[room[-2]][0]
                 y += napravlenie2[room[-2]][1]
             self.karta[y] = self.karta[y][:x] + "#################" + self.karta[y][x + 17:]
+            kol_enemies = random.randint(5, 9)
             for i in range(1, 16):
                 self.karta[y + i] = self.karta[y + i][:x] + "#...............#" + self.karta[y + i][x + 17:]
+                if kol_enemies:
+                    enemie = random.choice([True, False])
+                    if enemie:
+                        enemies_pos = random.randint(2, 14)
+                        self.karta[y + i] = self.karta[y + i][:x + enemies_pos] + "E" + self.karta[y + i][x + enemies_pos + 1:]
+                        kol_enemies -= 1
             self.karta[y + 16] = self.karta[y + 16][:x] + "#################" + self.karta[y + 16][x + 17:]
             for i in range(len(room[-1])):
                 for j in predki:
@@ -242,33 +251,52 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["ЗАСТАВКА",
-                  "Правила игры",
-                  "Есть в правилах несколько строк",
-                  "Приходится выводить их построчно"]
-    font = pygame.font.Font(None, 30)
-    text_coord = 50
+    intro_text = {"AUNTENTIFICATION": [(287, 78), (415, 40)], "LOGIN": [(266, 255), (462, 80)],
+                  "PASSWORD": [(266, 459), (462, 80)], "LOG IN": [(412, 664), (165, 40)],
+                  "REGISTRATE": [(346, 795), (300, 40)]}
+    font = pygame.font.SysFont("SMW Text 2 NC", 40)
+    text_coord = 0
     sprite = pygame.sprite.Group()
     image = pygame.sprite.Sprite()
-    image.image = load_image("fon.jpg")
-    image.image = pygame.transform.scale(image.image, (550, 550))
+    image.image = load_image("authentication.png")
+    image.image = pygame.transform.scale(image.image, (1000, 1000))
     image.rect = image.image.get_rect()
     sprite.add(image)
     sprite.draw(screen)
-    for line in intro_text:
-        string_render = font.render(line, 1, pygame.Color(0, 0, 0))
-        intro_rect = string_render.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_render, intro_rect)
+    for line in intro_text.keys():
+        #text_rect_image = load_image("text_fon_4.png", -1)
+        text_rect_image = pygame.transform.scale(load_image("text_fon_4.png", -1), (500, 82))
+        pygame.draw.rect(text_rect_image, pygame.Color(255, 0, 0), (0, 0, intro_text[line][1][0], intro_text[line][1][1]), 2)
+        text_fon = pygame.sprite.Sprite()
+        text_fon.image = text_rect_image
+        text_fon.rect = text_fon.image.get_rect()
+        text_fon.rect.x = intro_text[line][0][0]
+        text_fon.rect.y = intro_text[line][0][1]
+        intro_text[line] += [text_fon]
+    sprite.draw(screen)
+    action_sprite = pygame.sprite.Group()
+    enter_login = False
+    login = ""
+    enter_password = False
+    password = ""
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            elif event.type == pygame.MOUSEMOTION:
+                x, y = event.pos
+                flag = 0
+                for value in intro_text.values():
+                    if value[0][0] <= x <= value[0][0] + value[1][0] and value[0][1] <= y <= value[0][1] + value[1][1]:
+                        flag = 1
+                        action_sprite.add(value[2])
+                        break
+                if flag == 0:
+                    action_sprite = pygame.sprite.Group()
             elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
                 return
+        sprite.draw(screen)
+        action_sprite.draw(screen)
         pygame.display.flip()
 
 
@@ -297,6 +325,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = (self.rect.y + vy) % height
 
 
+class Enemie(pygame.sprite.Sprite):
+    pass
+
+
 def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
@@ -316,6 +348,9 @@ def generate_level(level):
             elif level[y][x] == "@":
                 Tile("empty", x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == "E":
+                Tile("empty", x, y)
+                Enemie(x, y)
     return new_player, x, y
 
 
@@ -402,3 +437,4 @@ while running:
     player_group.draw(screen)
     pygame.display.flip()
 pygame.quit()
+#97 120 42; 275, ; 275, 390
