@@ -193,7 +193,7 @@ class Map():
                 x += napravlenie2[room[-2]][0]
                 y += napravlenie2[room[-2]][1]
             self.karta[y] = self.karta[y][:x] + "#################" + self.karta[y][x + 17:]
-            kol_enemies = random.randint(5, 9)
+            kol_enemies = random.randint(5, 8)
             for i in range(1, 16):
                 self.karta[y + i] = self.karta[y + i][:x] + "#...............#" + self.karta[y + i][x + 17:]
                 if kol_enemies:
