@@ -199,9 +199,20 @@ class Map():
                 x += napravlenie2[room[-2]][0]
                 y += napravlenie2[room[-2]][1]
             self.karta[y] = self.karta[y][:x] + "#################" + self.karta[y][x + 17:]
+            List = []
+            spisok = [(i, j) for j in range(2, 14) for i in range(2, 14)]
+            while len(List) != 5:
+                pos = random.choice(spisok)
+                if pos not in List:
+                    List.append(pos)
             for i in range(1, 16):
-                self.karta[y + i] = self.karta[y + i][:x] + "#...............#" + self.karta[y + i][
-                                                                                  x + 17:]
+                st = self.karta[y + i][:x] + "#"
+                for j in range(1, 16):
+                    if (i, j) in List:
+                        st += "O"
+                    else:
+                        st += "."
+                self.karta[y + i] = st + "#" + self.karta[y + i][x + 17:]
             self.karta[y + 16] = self.karta[y + 16][:x] + "#################" + self.karta[y + 16][
                                                                                 x + 17:]
             for i in range(len(room[-1])):
@@ -292,86 +303,64 @@ class Tile(pygame.sprite.Sprite):
         elif tile_type == "box":
             super().__init__(box_group, all_sprites)
         else:
-            super().__init__(all_sprites)
+            super().__init__(hall_group, all_sprites)
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(tile_width * pos_x, tile_height * pos_y)
 
 
 def generate_level(level):
     new_player, x, y = None, None, None
-    for y in range(len(level)):
-        for x in range(len(level[y])):
-            if level[y][x] == ".":
-                Tile("empty", x, y)
-            elif level[y][x] == "~":
-                Tile("fon", x, y)
-            elif level[y][x] == "^":
-                Tile("gate", x, y)
-            elif level[y][x] == "!":
-                Tile("door", x, y)
-            elif level[y][x] == "$":
-                Tile("box", x, y)
-            elif level[y][x] == "#":
-                Tile("wall", x, y)
-            elif level[y][x] == "@":
-                Tile("empty", x, y)
+    for x in range(len(level)):
+        for y in range(len(level[x])):
+            if level[x][y] == ".":
+                Tile("empty", y, x)
+            elif level[x][y] == "~":
+                Tile("fon", y, x)
+            elif level[x][y] == "^":
+                Tile("gate", y, x)
+            elif level[x][y] == "!":
+                Tile("door", y, x)
+            elif level[x][y] == "$":
+                Tile("box", y, x)
+            elif level[x][y] == "#":
+                Tile("wall", y, x)
+            elif level[x][y] == "O":
+                Tile("empty", y, x)
+                FirstOrk(y, x)
+            elif level[x][y] == "@":
+                Tile("empty", y, x)
                 if class_hero == 1:
-                    new_player = KnightWithSpear(x, y)
+                    new_player = KnightWithSpear(y, x)
                 elif class_hero == 2:
-                    new_player = Mage(x, y)
+                    new_player = Mage(y, x)
                 elif class_hero == 3:
-                    new_player = Dworf(x, y)
+                    new_player = Dworf(y, x)
                 elif class_hero == 4:
-                    new_player = Rogue(x, y)
+                    new_player = Rogue(y, x)
     return new_player, x, y
 
 
-"""
 class FirstOrk(pygame.sprite.Sprite):
-    file_name = "images/characters/enemies/ORK1/"
-    attack_right_images = [pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_000.png"),
-                           pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_001.png"),
-                           pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_002.png"),
-                           pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_003.png"),
-                           pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_004.png"),
-                           pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_005.png"),
-                           pygame.image.load(file_name + "_ATTACK_RIGHT/ATTACK_006.png")]
-    attack_left_images = [pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_000.png"),
-                          pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_001.png"),
-                          pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_002.png"),
-                          pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_003.png"),
-                          pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_004.png"),
-                          pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_005.png"),
-                          pygame.image.load(file_name + "_ATTACK_LEFT/ATTACK_006.png")]
-    die_images = [pygame.image.load(file_name + "_DIE/_DIE_000.png"),
-                  pygame.image.load(file_name + "_DIE/_DIE_001.png"),
-                  pygame.image.load(file_name + "_DIE/_DIE_002.png"),
-                  pygame.image.load(file_name + "_DIE/_DIE_003.png"),
-                  pygame.image.load(file_name + "_DIE/_DIE_004.png"),
-                  pygame.image.load(file_name + "_DIE/_DIE_005.png"),
-                  pygame.image.load(file_name + "_DIE/_DIE_006.png")]
-    run_right_images = [pygame.image.load(file_name + "_RUN_RIGHT/_RUN_000.png"),
-                        pygame.image.load(file_name + "_RUN_RIGHT/_RUN_001.png"),
-                        pygame.image.load(file_name + "_RUN_RIGHT/_RUN_002.png"),
-                        pygame.image.load(file_name + "_RUN_RIGHT/_RUN_003.png"),
-                        pygame.image.load(file_name + "_RUN_RIGHT/_RUN_004.png"),
-                        pygame.image.load(file_name + "_RUN_RIGHT/_RUN_005.png"),
-                        pygame.image.load(file_name + "_RUN_RIGHT/_RUN_006.png")]
-    run_left_images = [pygame.image.load(file_name + "_RUN_LEFT/_RUN_000.png"),
-                       pygame.image.load(file_name + "_RUN_LEFT/_RUN_001.png"),
-                       pygame.image.load(file_name + "_RUN_LEFT/_RUN_002.png"),
-                       pygame.image.load(file_name + "_RUN_LEFT/_RUN_003.png"),
-                       pygame.image.load(file_name + "_RUN_LEFT/_RUN_004.png"),
-                       pygame.image.load(file_name + "_RUN_LEFT/_RUN_005.png"),
-                       pygame.image.load(file_name + "_RUN_LEFT/_RUN_006.png")]
+    file_name = "images/characters/enemies/ORK_1/"
+    sl_images = {"attack_right": [], "attack_left": [], "run_left": [], "run_right": [], "die": []}
+    sl_six_pict = {0: ["attack_right", "_ATTACK_RIGHT/ATTACK_00"],
+                   1: ["attack_left", "_ATTACK_LEFT/ATTACK_00"],
+                   2: ["run_right", "_RUN_RIGHT/_RUN_00"],
+                   3: ["run_left", "_RUN_LEFT/_RUN_00"],
+                   4: ["die", "_DIE/_DIE_00"]}
+    for i in range(35):
+        nom = sl_six_pict[i // 7]
+        sl_images[nom[0]].append(pygame.image.load(file_name + nom[1] + str(i % 7) + ".png"))
 
     def __init__(self, x, y):
-        super().__init__()
-        self.add(enemies)
-        self.image = self.attack_right_images[0]
+        super().__init__(all_sprites)
+        self.add(enemy_group)
+        self.image = self.sl_images["attack_right"][0]
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(50 * x, 50 * y)
         self.hp = 100
+        self.x = y
+        self.y = x
         self.damage = 1
         self.armor = 100
         self.speed = 2
@@ -387,43 +376,49 @@ class FirstOrk(pygame.sprite.Sprite):
         self.attack_animation = 0
         self.die_animation = 0
         self.pos_attack = self.rect
-        self.width = len(level[0])
-        self.height = len(level)
 
     def search_hero(self, x, y):
-        # print(x, y, self.hero_x, self.hero_y)
-        if self.color[x][y] == 0 and self.color[self.hero_x][self.hero_y] == 0:
+        if self.color[x][y] == 0:
             self.color[x][y] = 1
-            # print(x, y)
             if y + 1 < self.width:
-                if level[x][y + 1] != "#":
+                if level[x][y + 1] != "#" and level[x][y + 1] != "^":
                     self.pred[x][y + 1] = (x, y)
                     self.search_hero(x, y + 1)
             if x + 1 < self.height:
-                if level[x + 1][y] != "#":
+                if level[x + 1][y] != "#" and level[x + 1][y] != "^":
                     self.pred[x + 1][y] = (x, y)
                     self.search_hero(x + 1, y)
             if y - 1 > -1:
-                if level[x][y - 1] != "#":
+                if level[x][y - 1] != "#" and level[x][y - 1] != "^":
                     self.pred[x][y - 1] = (x, y)
                     self.search_hero(x, y - 1)
             if x - 1 > -1:
-                if level[x - 1][y] != "#":
+                if level[x - 1][y] != "#" and level[x - 1][y] != "^":
                     self.pred[x - 1][y] = (x, y)
                     self.search_hero(x - 1, y)
 
-    def update(self, hero_x, hero_y, *args):
+    def update(self, *args):
         if self.hp <= 0 and self.die_animation <= 6:
-            self.image = self.die_images[self.die_animation]
+            self.image = self.sl_images["die"][self.die_animation]
             self.die_animation += 1
         else:
+            self.width = len(level[0])
+            self.height = len(level)
             self.color = [[0 for i in range(self.width + 1)] for j in range(self.height + 1)]
             self.pred = [[(-1, -1) for i in range(self.width + 1)] for j in range(self.height + 1)]
-            self.hero_x, self.hero_y = hero_x, hero_y
-            print(self.rect)
-            self.search_hero(self.rect[1] // 50, self.rect[0] // 50)
+            self.hero_x, self.hero_y = player.x // 50, player.y // 50
+            self.search_hero(self.x, self.y)
+            #print(player.x, player.y)
+            print(self.hero_x, self.hero_y)
+            #print(self.x, self.y, level[self.x][self.y])
+            #for i in self.color:
+            #    print(*i)
             if self.color[self.hero_x][self.hero_y] == 1:
-                pass"""
+                print("YES")
+                player.go_hall = False
+            else:
+                print("NO")
+                player.go_hall = True
 
 
 class KnightWithSpear(pygame.sprite.Sprite):
@@ -762,7 +757,7 @@ class Rogue(pygame.sprite.Sprite):
     for i in range(5):
         sl_images[nom[0]].append(pygame.image.load(file_name + nom[1] + str(i) + ".png"))
     sl_sixteen_pict = {0: ["idle_right", "_IDLE_RIGHT/_IDLE_0"],
-                     1: ["idle_left", "_IDLE_LEFT/_IDLE_0"]}
+                       1: ["idle_left", "_IDLE_LEFT/_IDLE_0"]}
     for i in range(34):
         nom = sl_sixteen_pict[i // 17]
         st = str(i % 17).rjust(2, "0")
@@ -774,11 +769,14 @@ class Rogue(pygame.sprite.Sprite):
         self.image = self.sl_images["idle_right"][0]
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(50 * x, 50 * y)
+        self.x = x * 50
+        self.y = y * 50
         self.hp = 100
         self.damage = 25
         self.armor = 150
         self.speed = 10
         self.alive = True
+        self.go_hall = True
         self.left = False
         self.right = False
         self.pred_left = True
@@ -815,12 +813,25 @@ class Rogue(pygame.sprite.Sprite):
                     self.left = self.pred_left
                     self.right = self.pred_right
             else:
-                self.rect = self.rect.move(x, 0)
-                if pygame.sprite.spritecollideany(self, tile_group):
+                if self.right:
+                    mov = -125
+                else:
+                    mov = 0
+                self.rect = self.rect.move(x + mov, 0)
+                self.x += x
+                if pygame.sprite.spritecollideany(self, tile_group) or \
+                        (self.go_hall == False and pygame.sprite.spritecollideany(self,
+                                                                                  hall_group)):
                     self.rect = self.rect.move(-x, 0)
-                self.rect = self.rect.move(0, y)
-                if pygame.sprite.spritecollideany(self, tile_group):
+                    self.x -= x
+                self.rect = self.rect.move(0, y + mov)
+                self.y += y
+                if pygame.sprite.spritecollideany(self, tile_group) or \
+                        (self.go_hall == False and pygame.sprite.spritecollideany(self,
+                                                                                  hall_group)):
                     self.rect = self.rect.move(0, -y)
+                    self.y -= y
+                self.rect = self.rect.move(-mov, -mov)
                 if x != 0 or y != 0:
                     self.stop = False
                     self.pred_right = self.right
@@ -879,6 +890,7 @@ tile_group = pygame.sprite.Group()
 door_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 box_group = pygame.sprite.Group()
+hall_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 level = load_level("lobbi.txt")
 player, level_x, level_y = generate_level(level)
@@ -888,6 +900,7 @@ del_y = 0
 player.stop = True
 clock = pygame.time.Clock()
 fps = 30
+spisok_smej = {}
 running = True
 xod = {pygame.K_DOWN: (0, player.speed), pygame.K_UP: (0, -player.speed),
        pygame.K_LEFT: (-player.speed, 0), pygame.K_RIGHT: (player.speed, 0),
@@ -897,7 +910,12 @@ camera.update(player)
 for sprite in all_sprites:
     camera.apply(sprite)
 camera.apply(player)
+print("\n".join(level))
+dfb = 0
 while running:
+    if dfb == 50:
+        print(player.x // 50, player.y // 50)
+    dfb = (dfb + 1) % 51
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -925,6 +943,17 @@ while running:
                         carta = Map(number_level)
                     number_roon = (number_room + 1) % 5
                     level = carta.make_room()
+                    print("\n".join(level))
+                    height_smej, width_smej = -1, -1
+                    for i in range(len(level)):
+                        for j in range(len(level[i])):
+                            if level[i][j] != "#" and level[i][j] != "^" and level[i][j] != "~":
+                                height_smej = max(height_smej, i)
+                                width_smej = max(width_smej, j)
+                                if i in spisok_smej.keys():
+                                    spisok_smej[i].append(j)
+                                else:
+                                    spisok_smej[i] = [j]
                     player, level_x, level_y = generate_level(level)
                     camera.update(player)
                     for sprite in all_sprites:
@@ -952,10 +981,12 @@ while running:
             player.left = False
             player.right = False
         player_group.update(del_x, del_y)
-        camera.update(player)
-        for sprite in all_sprites:
-            camera.apply(sprite)
-        camera.apply(player)
+        for sprite in enemy_group:
+            sprite.update()
+    camera.update(player)
+    for sprite in all_sprites:
+        camera.apply(sprite)
+    camera.apply(player)
     screen.fill((255, 255, 255))
     all_sprites.draw(screen)
     player_group.draw(screen)
