@@ -272,10 +272,10 @@ class Enemy(pygame.sprite.Sprite):
         self.image = self.sl_images["attack_right"][0]
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(50 * y, 50 * x)
-        self.hp = 60 + uroven * 10
+        self.hp = 65 + uroven * 10
         self.x = x * 50
         self.y = y * 50
-        self.damage = 20 + uroven * 3
+        self.damage = 16 + uroven * 3
         self.armor = 50 + uroven * 5
         self.speed = 2
         self.pos_y = 0
@@ -1242,8 +1242,8 @@ def win():
     sprite.draw(screen)
     con = sqlite3.connect("player.db")
     cur = con.cursor()
-    cur.execute("""UPDATE info_player SET hero = ?, level = ? WHERE login = ?""",
-                ("NO", -1, player_login))
+    cur.execute("""UPDATE info_player SET hero = ?, level = ?, hp = ?, damage = ?, 
+                armor = ? WHERE login = ?""", ("NO", -1, -1, -1, -1, player_login))
     con.commit()
     con.close()
     pygame.mixer.music.play(loops=-1)
